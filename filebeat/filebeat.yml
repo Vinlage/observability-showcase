@@ -1,0 +1,28 @@
+logging.level: info
+filebeat.inputs:
+  - type: container
+    paths:
+      - /var/lib/docker/containers/*/*.log
+    processors:
+      - add_docker_metadata: ~
+      - decode_json_fields:
+          fields: ["message"]
+          process_array: false
+          max_depth: 1
+          target: ""
+          overwrite_keys: true
+      - drop_event:
+          when:
+            or:
+              - not:
+                  contains:
+                    container.name: "orders-service"
+              - not:
+                  equals:
+                    log.level: "info"
+
+    fields:
+      app: orders-service
+
+output.logstash:
+  hosts: ["logstash:5044"]

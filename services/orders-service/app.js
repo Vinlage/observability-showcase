@@ -1,11 +1,9 @@
 require("./otel-config");
 const express = require("express");
-const { diag, DiagConsoleLogger, DiagLogLevel } = require("@opentelemetry/api");
+const { trace, context } = require("@opentelemetry/api");
 const pino = require("pino");
 const pinoHttp = require("pino-http");
 const ecsFormat = require("@elastic/ecs-pino-format");
-
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
 const logger = pino({
   level: "info",
@@ -24,7 +22,7 @@ const loggingMiddleware = pinoHttp({
     }),
   },
   genReqId: (req) => {
-    const span = trace.getSpan(trace.context.active());
+    const span = trace.getSpan(context.active());
     if (span) {
       const spanContext = span.spanContext();
       req.traceId = spanContext.traceId;

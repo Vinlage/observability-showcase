@@ -8,6 +8,9 @@ services:
       - jaeger
       - prometheus
       - logstash
+      - elasticsearch
+    logging:
+      driver: "json-file"
 
   jaeger:
     image: jaegertracing/all-in-one:1.49
@@ -58,3 +61,14 @@ services:
     depends_on:
       - elasticsearch
 
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.1
+    user: root
+    command: filebeat -e -strict.perms=false
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - logstash
+    restart: always

@@ -5,7 +5,6 @@ const { OTLPMetricExporter } = require("@opentelemetry/exporter-metrics-otlp-htt
 
 const sdk = new opentelemetry.NodeSDK({
   traceExporter: new OTLPTraceExporter({ url: "http://jaeger:4318/v1/traces" }),
-  metricExporter: new OTLPMetricExporter({ url: "http://prometheus:9090/metrics" }),
   instrumentations: [getNodeAutoInstrumentations()],
 });
 

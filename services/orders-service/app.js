@@ -61,6 +61,11 @@ app.get("/order/:id", (req, res) => {
   res.json({ orderId: req.params.id, status: "confirmed" });
 });
 
+app.get("/simulate-error", (req, res) => {
+  req.log.error({ err }, "Unhandled error");
+  res.status(500).json({ error: "Internal Server Error" });
+});
+
 app.get('/metrics', (req, res) => {
   res.set('Content-Type', metricsMiddleware.promClient.register.contentType);
   res.send(metricsMiddleware.promClient.register.metrics());

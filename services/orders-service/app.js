@@ -4,26 +4,11 @@ const { trace, context } = require("@opentelemetry/api");
 const pino = require("pino");
 const pinoHttp = require("pino-http");
 const ecsFormat = require("@elastic/ecs-pino-format");
-const promBundle = require('express-prom-bundle');
 
 const logger = pino({
   level: "info",
   ...ecsFormat(),
   base: null,
-});
-
-const metricsMiddleware = promBundle({
-  includeMethod: true,
-  includePath: true,
-  includeStatusCode: true,
-  autoregister: true,
-  promClient: {
-    collectDefaultMetrics: {},
-  },
-  normalizePath: [
-    [/^\/metrics$/, '/metrics'], 
-    [/^\/order\/[^\/]+$/, '/order/:id']
-  ],
 });
 
 const loggingMiddleware = pinoHttp({
@@ -53,7 +38,6 @@ const loggingMiddleware = pinoHttp({
 });
 
 const app = express();
-app.use(metricsMiddleware);
 app.use(loggingMiddleware);
 
 app.get("/order/:id", (req, res) => {
@@ -62,13 +46,9 @@ app.get("/order/:id", (req, res) => {
 });
 
 app.get("/simulate-error", (req, res) => {
+  const err = new Error("Simulated internal server error");
   req.log.error({ err }, "Unhandled error");
   res.status(500).json({ error: "Internal Server Error" });
-});
-
-app.get('/metrics', (req, res) => {
-  res.set('Content-Type', metricsMiddleware.promClient.register.contentType);
-  res.send(metricsMiddleware.promClient.register.metrics());
 });
 
 app.listen(3000, () => {

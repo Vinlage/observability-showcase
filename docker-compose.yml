@@ -15,6 +15,21 @@ services:
     environment:
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
 
+  payment-service:
+    build: ./services/payment-service
+    ports:
+      - "3002:3002"
+    depends_on:
+      - jaeger
+      - prometheus
+      - logstash
+      - elasticsearch
+      - otel-collector
+    logging:
+      driver: "json-file"
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+
   otel-collector:
     image: otel/opentelemetry-collector:latest
     ports:

@@ -4,6 +4,7 @@ const { trace, context } = require("@opentelemetry/api");
 const pino = require("pino");
 const pinoHttp = require("pino-http");
 const ecsFormat = require("@elastic/ecs-pino-format");
+const axios = require("axios");
 
 const logger = pino({
   level: "info",
@@ -40,9 +41,19 @@ const loggingMiddleware = pinoHttp({
 const app = express();
 app.use(loggingMiddleware);
 
-app.get("/order/:id", (req, res) => {
-  req.log.info({ msg: "Fetching order", orderId: req.params.id });
-  res.json({ orderId: req.params.id, status: "confirmed" });
+app.get("/order/:id", async (req, res) => {
+  req.log.info({ msg: "Creating order", orderId: req.params.id });
+
+  try {
+    const payment = await axios.post(`http://payment-service:3002/payment`, {
+      orderId: req.params.id,
+      amount: 100,
+    });
+    res.json({ orderId: req.params.id, payment: payment.data });
+  } catch (err) {
+    req.log.error({ err }, "Payment failed");
+    res.status(500).json({ error: "Payment Service Error" });
+  }
 });
 
 app.get("/simulate-error", (req, res) => {

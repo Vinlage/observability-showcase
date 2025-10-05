@@ -6,6 +6,7 @@ import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from "@opentelemetry/semantic
 import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
+import { metrics } from "@opentelemetry/api";
 
 const sdk = new NodeSDK({
   resource: resourceFromAttributes({
@@ -31,3 +32,13 @@ const sdk = new NodeSDK({
 });
 
 sdk.start();
+
+const meter = metrics.getMeter("orders-service-meter");
+
+const appLastSeen = meter.createObservableGauge("app_last_seen", {
+  description: "Timestamp (epoch seconds) da última vez que o serviço esteve ativo",
+});
+
+appLastSeen.addCallback((observableResult) => {
+  observableResult.observe(Math.floor(Date.now() / 1000), { service: "orders-service" });
+});

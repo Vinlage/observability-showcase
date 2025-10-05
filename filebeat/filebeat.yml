@@ -17,9 +17,6 @@ filebeat.inputs:
               - not:
                   contains:
                     container.name: "orders-service"
-              - not:
-                  equals:
-                    log.level: "info"
 
     fields:
       app: orders-service

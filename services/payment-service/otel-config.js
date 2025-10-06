@@ -33,12 +33,12 @@ const sdk = new NodeSDK({
 
 sdk.start();
 
-const meter = metrics.getMeter("orders-service-meter");
+const meter = metrics.getMeter("payment-service-meter");
 
 const appLastSeen = meter.createObservableGauge("app_last_seen", {
   description: "Timestamp (epoch seconds) da última vez que o serviço esteve ativo",
 });
 
 appLastSeen.addCallback((observableResult) => {
-  observableResult.observe(Math.floor(Date.now() / 1000), { service: "orders-service" });
+  observableResult.observe(Math.floor(Date.now() / 1000), { service: "payment-service" });
 });

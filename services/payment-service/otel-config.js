@@ -35,10 +35,10 @@ sdk.start();
 
 const meter = metrics.getMeter("payment-service-meter");
 
-const appLastSeen = meter.createObservableGauge("app_last_seen", {
-  description: "Timestamp (epoch seconds) da última vez que o serviço esteve ativo",
+const appUp = meter.createObservableGauge("app_heartbeat", {
+  description: "Timestamp (epoch seconds) from last activity of the service",
 });
 
-appLastSeen.addCallback((observableResult) => {
+appUp.addCallback((observableResult) => {
   observableResult.observe(Math.floor(Date.now() / 1000), { service: "payment-service" });
 });

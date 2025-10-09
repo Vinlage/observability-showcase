@@ -18,13 +18,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 0,
+  "id": 1,
   "links": [],
   "panels": [
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eezu0kfc8nu2oa"
+        "uid": "bf0fkiv99fthcf"
       },
       "fieldConfig": {
         "defaults": {
@@ -65,7 +65,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 4,
         "w": 2,
         "x": 0,
         "y": 0
@@ -85,6 +85,9 @@
           "values": false
         },
         "showPercentChange": false,
+        "text": {
+          "valueSize": 50
+        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -92,9 +95,12 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "up{job=\"orders-service\"}",
+          "exemplar": false,
+          "expr": "clamp_max(time() - last_over_time(app_heartbeat{exported_job=$service_name}[30s]) < 15, 1) OR app_heartbeat{exported_job=$service_name} * 0",
+          "format": "time_series",
+          "instant": true,
           "legendFormat": "__auto",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -104,7 +110,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eezu0kfc8nu2oa"
+        "uid": "bf0fkiv99fthcf"
       },
       "fieldConfig": {
         "defaults": {
@@ -169,137 +175,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eezu0kfc8nu2oa"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 10
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 6,
-        "y": 0
-      },
-      "id": 3,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "(\r\n  sum(rate(http_request_duration_seconds_count{status_code=~\"4..\"}[5m]))\r\n  /\r\n  sum(rate(http_request_duration_seconds_count[5m]))\r\n) * 100",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Error Rate %",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "eezu0kfc8nu2oa"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 512
-              }
-            ]
-          },
-          "unit": "decmbytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 3,
-        "x": 9,
-        "y": 0
-      },
-      "id": 5,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {},
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.0",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "process_resident_memory_bytes / 1024 / 1024",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Memory Usage",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "eezu0kfc8nu2oa"
+        "uid": "bf0fkiv99fthcf"
       },
       "fieldConfig": {
         "defaults": {
@@ -381,8 +257,8 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(http_request_duration_seconds_count[1m])) by (method, path)",
-          "legendFormat": "{{method}} {{path}}",
+          "expr": "sum(rate(http_server_duration_milliseconds_count{exported_job=$service_name}[1m])) \r\n  by (http_method, http_route)",
+          "legendFormat": "{{http_method}} {{http_route}}",
           "range": true,
           "refId": "A"
         }
@@ -393,7 +269,74 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eezu0kfc8nu2oa"
+        "uid": "bf0fkiv99fthcf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 512
+              }
+            ]
+          },
+          "unit": "decmbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 2,
+        "x": 0,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum(v8js_memory_heap_used_bytes{exported_job=$service_name}) by (service_name) / 1024 / 1024",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Memory Usage",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf0fkiv99fthcf"
       },
       "fieldConfig": {
         "defaults": {
@@ -480,8 +423,8 @@
             "uid": "eezu0kfc8nu2oa"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum by(le, path, method) (rate(http_request_duration_seconds_bucket[5m]))) * 1000",
-          "legendFormat": "{{method}} {{path}}",
+          "expr": "histogram_quantile(0.99,\r\n  sum(rate(http_server_duration_milliseconds_bucket{exported_job=$service_name}[5m])) by (le, http_method, http_route)\r\n)",
+          "legendFormat": "{{http_method}} {{http_route}}",
           "range": true,
           "refId": "A"
         }
@@ -492,7 +435,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "eezu0kfc8nu2oa"
+        "uid": "bf0fkiv99fthcf"
       },
       "fieldConfig": {
         "defaults": {
@@ -579,21 +522,169 @@
             "uid": "eezu0kfc8nu2oa"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum by(le, path, method) (rate(http_request_duration_seconds_bucket[5m]))) * 1000",
-          "legendFormat": "{{method}} {{path}}",
+          "expr": "histogram_quantile(0.95,\r\n  sum(rate(http_server_duration_milliseconds_bucket{exported_job=$service_name}[5m])) by (le, http_method, http_route)\r\n)",
+          "legendFormat": "{{http_method}} {{http_route}}",
           "range": true,
           "refId": "A"
         }
       ],
       "title": "Query (p95)",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf0fkiv99fthcf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 0,
+        "y": 16
+      },
+      "id": 3,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "(\r\n  sum(\r\n    rate(http_server_duration_milliseconds_count{http_status_code=~\"4..\", exported_job=$service_name}[5m])\r\n  )\r\n  /\r\n  sum(\r\n    rate(http_server_duration_milliseconds_count{exported_job=$service_name}[5m])\r\n  )\r\n)",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "400 - Error Rate %",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf0fkiv99fthcf"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 3,
+        "y": 16
+      },
+      "id": 8,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "(\r\n  sum(\r\n    rate(http_server_duration_milliseconds_count{http_status_code=~\"5..\", exported_job=$service_name}[5m])\r\n  )\r\n  /\r\n  sum(\r\n    rate(http_server_duration_milliseconds_count{exported_job=$service_name}[5m])\r\n  )\r\n)",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "500 - Error Rate %",
+      "type": "gauge"
     }
   ],
   "preload": false,
   "schemaVersion": 42,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "text": "\"orders-service\"",
+          "value": "\"orders-service\""
+        },
+        "name": "service_name",
+        "options": [
+          {
+            "selected": true,
+            "text": "\"orders-service\"",
+            "value": "\"orders-service\""
+          },
+          {
+            "selected": false,
+            "text": "\"payment-service\"",
+            "value": "\"payment-service\""
+          }
+        ],
+        "query": "\"orders-service\",\"payment-service\"",
+        "type": "custom"
+      }
+    ]
   },
   "time": {
     "from": "now-1h",
@@ -603,5 +694,5 @@
   "timezone": "browser",
   "title": "Observability Showcase",
   "uid": "adg45rv",
-  "version": 21
+  "version": 23
 }
